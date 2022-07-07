@@ -1,0 +1,91 @@
+import React, { useState } from "react";
+import {
+  Button,
+  Field,
+  Control,
+  Input,
+  Column,
+  Help,
+  Label,
+} from "rbx";
+
+import { Navigate } from "react-router-dom";
+import UsersService from '../../../services/users';
+
+
+function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [redirectToRegister, setRedirectToRegister] = useState(false);
+  const [redirectToNotes, setRedirectToNotes] = useState(false);
+  const [error, setError] = useState(false);
+
+  const HandleSubmit = async (event) => {
+    event.preventDefault(); 
+    try {
+      const user = await UsersService.login({email: email, password: password});
+      setRedirectToNotes(true);
+    } catch (error) {
+      setError(true);
+    }
+  }
+  
+
+  if (redirectToRegister) return <Navigate to="/register" />;
+  else if (redirectToNotes) return <Navigate to="/notes" />;
+
+  return (
+    <>
+      <Column.Group centered>
+        <form onSubmit={HandleSubmit}>
+          <Column size={12}>
+            <Field>
+              <Label size="small">Email:</Label>
+              <Control>
+                <Input
+                  type="email"
+                  required
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </Control>
+            </Field>
+            <Field>
+              <Label size="small">Password:</Label>
+              <Control>
+                <Input
+                  type="password"
+                  required
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Control>
+            </Field>
+            <Field>
+              <Control>
+                <Column.Group breakpoint="mobile">
+                  <Column>
+                    <a className="button is-white has-text-link"
+                        onClick={e => setRedirectToRegister(true)}
+                    >Register or
+                    </a>
+                  </Column>
+                  <Column>
+                    <Button color="link" outlined>
+                      Login
+                    </Button>
+                  </Column>
+                </Column.Group>
+              </Control>
+            </Field>
+            {  error && <Help color="danger">Email or Password invalid</Help> }
+          </Column>
+        </form>
+      </Column.Group>
+    </>
+  );
+}
+
+export default LoginForm;
